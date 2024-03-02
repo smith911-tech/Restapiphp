@@ -1,6 +1,49 @@
 <?php
 require '../includes/dbcon.php';
 
+function error422(){
+    $data = [
+        'status' => 422,
+        'message' =>  " Method not allowed",
+    ];
+    header("HTTP/1.0 422 Unprocessable Entity");
+    echo json_encode($data);
+}
+
+function storeCustomer($customerInput){
+    global $con;
+
+    $name = mysqli_real_escape_string($con, $customerInput["name"]);
+    $email = mysqli_real_escape_string($con, $customerInput["email"]);
+    $phone = mysqli_real_escape_string($con, $customerInput["phone"]);
+
+    if(
+        empty(trim($name)) || empty(trim($email)) || empty(trim($phone))
+    )
+    {
+        return error422();
+    }else {
+        $query = "INSERT INTO customers (name, email, phone) VALUES ('$name', '$email', '$phone')";
+        $result = mysqli_query($con, $query);
+        if($result){
+            $data = [
+                'status' => 201,
+                'message' =>  " Customer created Successfully ",
+            ];
+            header("HTTP/1.0 201 Created");
+            return json_encode($data);
+        }else{
+            $data = [
+                'status' => 500,
+                'message' => "Internal Server Error",
+            ];
+            header("HTTP/1.0 500 Internal Server Error ");
+            return json_encode($data);
+        }
+    }
+
+}
+
 function getCustomerList()
 {
     global $con;
