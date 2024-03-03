@@ -1,38 +1,40 @@
 <?php
 require '../includes/dbcon.php';
 
-function error422(){
+function error422($message)
+{
     $data = [
         'status' => 422,
-        'message' =>  " Method not allowed",
+        'message' =>  $message,
     ];
     header("HTTP/1.0 422 Unprocessable Entity");
     echo json_encode($data);
 }
 
-function storeCustomer($customerInput){
+function storeCustomer($customerInput)
+{
     global $con;
 
     $name = mysqli_real_escape_string($con, $customerInput["name"]);
     $email = mysqli_real_escape_string($con, $customerInput["email"]);
     $phone = mysqli_real_escape_string($con, $customerInput["phone"]);
 
-    if(
+    if (
         empty(trim($name)) || empty(trim($email)) || empty(trim($phone))
-    )
-    {
-        return error422();
-    }else {
+    ) {
+        return empty(trim($name)) ??
+        error422('Method not allowed'); 
+    } else {
         $query = "INSERT INTO customers (name, email, phone) VALUES ('$name', '$email', '$phone')";
         $result = mysqli_query($con, $query);
-        if($result){
+        if ($result) {
             $data = [
                 'status' => 201,
                 'message' =>  " Customer created Successfully ",
             ];
             header("HTTP/1.0 201 Created");
             return json_encode($data);
-        }else{
+        } else {
             $data = [
                 'status' => 500,
                 'message' => "Internal Server Error",
@@ -41,7 +43,36 @@ function storeCustomer($customerInput){
             return json_encode($data);
         }
     }
-
+}
+function getCustomer($customerParams)
+{
+    global $con;
+    if ($customerParams['id'] == null) {
+        return error422('Enter your customer id');
+    }
+    $customerid = mysqli_real_escape_string($con, $customerParams['id']);
+    $query = "SELECT * FROM customers WHERE id='$customerid' LIMIT 1";
+    $result = mysqli_query($con, $query);
+    if($result){
+        if (mysqli_num_rows($result) == 1) {
+            $customerData = mysqli_fetch_assoc($result);
+            return json_encode($customerData);
+        } else {
+            $data = [
+                'status' => 404,
+                'message' => "Customer not found",
+            ];
+            header("HTTP/1.0 404 Not Found");
+            return json_encode($data);
+        }
+    } else{
+        $data = [
+            'status' => 500,
+            'message' => "Internal Server Error",
+        ];
+        header("HTTP/1.0 500 Internal Server Error ");
+        return json_encode($data);
+    }
 }
 
 function getCustomerList()
@@ -55,13 +86,13 @@ function getCustomerList()
         $data = [
             'status' => 200,
             'message' => "OK",
-            'data' => $res, 
+            'data' => $res,
         ];
         header("HTTP/1.0 200 Ok");
         return json_encode($data);
 
         if (mysqli_num_rows($query_run) > 0) {
-        }else{
+        } else {
             $data = [
                 'status' => 404,
                 'message' => "No Customer Found",

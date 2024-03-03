@@ -1,5 +1,4 @@
 <?php
-
 error_reporting(0);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
@@ -13,7 +12,7 @@ $requestMethod = $_SERVER["REQUEST_METHOD"];
 if($requestMethod == 'POST'){
     $inputData = json_decode(file_get_contents("php://input"), true);
     if(empty($inputData)){
-        $storeCustomer = $storeCustomer($_POST);
+        $storeCustomer = storeCustomer($_POST);
     }
     else{
         echo $inputData;
