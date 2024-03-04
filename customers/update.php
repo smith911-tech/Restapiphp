@@ -1,7 +1,7 @@
 <?php
-error_reporting(0);
+// error_reporting(0);
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Methods: PUT');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json');
 
@@ -9,16 +9,15 @@ include('functions.php');
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-if($requestMethod == 'POST'){
+if($requestMethod == 'PUT'){
     $inputData = json_decode(file_get_contents("php://input"), true);
     if(empty($inputData)){
-        $storeCustomer = storeCustomer($_POST);
+        $updateCustomer = updateCustomer($_POST, $_GET);
     }
     else{
-        echo $storeCustomer = storeCustomer($inputData);
+        echo $updateCustomer = updateCustomer($inputData, $_GET);
     }
-    echo $storeCustomer;
-    
+    echo $updateCustomer;
 
 }else{
     $data = [

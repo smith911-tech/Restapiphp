@@ -22,8 +22,7 @@ function storeCustomer($customerInput)
     if (
         empty(trim($name)) || empty(trim($email)) || empty(trim($phone))
     ) {
-        return empty(trim($name)) ??
-        error422('Method not allowed'); 
+        return error422('Method not allowed'); 
     } else {
         $query = "INSERT INTO customers (name, email, phone) VALUES ('$name', '$email', '$phone')";
         $result = mysqli_query($con, $query);
@@ -44,14 +43,54 @@ function storeCustomer($customerInput)
         }
     }
 }
+function updateCustomer($customerInput, $customerParams)
+{
+    global $con;
+
+    if(!isset($customerParams['id'])){
+        return error422('Customer id not found in url');
+    }else if(($customerParams['id']) == null){
+        return error422('Enter the customer id');
+    }
+
+    $customerId = mysqli_real_escape_string($con, $customerParams["id"]);
+
+    $name = mysqli_real_escape_string($con, $customerInput["name"]);
+    $email = mysqli_real_escape_string($con, $customerInput["email"]);
+    $phone = mysqli_real_escape_string($con, $customerInput["phone"]);
+
+    if (
+        empty(trim($name)) || empty(trim($email)) || empty(trim($phone))
+    ) {
+        return error422('Method not allowed'); 
+    } else {
+        $query = "UPDATE customers SET name= '$name', email='$email' , phone='$phone' WHERE id='$customerId' LIMIT 2";
+        $result = mysqli_query($con, $query);
+        if ($result) {
+            $data = [
+                'status' => 200,
+                'message' =>  " Customer Update Successfully ",
+            ];
+            header("HTTP/1.0 200 Success");
+            return json_encode($data);
+        } else {
+            $data = [
+                'status' => 500,
+                'message' => "Internal Server Error",
+            ];
+            header("HTTP/1.0 500 Internal Server Error ");
+            return json_encode($data);
+        }
+    }
+}
 function getCustomer($customerParams)
 {
     global $con;
     if ($customerParams['id'] == null) {
         return error422('Enter your customer id');
     }
-    $customerid = mysqli_real_escape_string($con, $customerParams['id']);
-    $query = "SELECT * FROM customers WHERE id='$customerid' LIMIT 1";
+    $customerId = mysqli_real_escape_string($con, $customerParams['id']);
+    $query = "SELECT * FROM customers WHERE id='$customerId' LIMIT 1";
     $result = mysqli_query($con, $query);
     if($result){
         if (mysqli_num_rows($result) == 1) {
