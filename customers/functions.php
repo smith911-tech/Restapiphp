@@ -148,3 +148,30 @@ function getCustomerList()
         return json_encode($data);
     }
 }
+
+function deleteCustomer($customerParams){
+    global $con;
+    if (!isset($customerParams['id'])) {
+        return error422('Customer id not found in url');
+    } else if (($customerParams['id']) == null) {
+        return error422('Enter the customer id');
+    }
+    $customerId = mysqli_real_escape_string($con, $customerParams["id"]);
+    $query = "DELETE FROM customers WHERE id='$customerId' LIMIT 1 ";
+    $result = mysqli_query($con, $query);
+    if($result){
+        $data = [
+            'status' => 204,
+            'message' => "Customer Deleted Successfully",
+        ];
+        header("HTTP/1.0 200 DELETE ");
+        return json_encode($data);
+    }else{
+        $data = [
+            'status' => 404,
+            'message' => "Customer Not Found",
+        ];
+        header("HTTP/1.0 504 Not Found ");
+        return json_encode($data);
+    }
+}
